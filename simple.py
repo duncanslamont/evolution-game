@@ -18,6 +18,7 @@ blue = (0, 0, 255)
 green = (0, 255, 0)
 yellow = (255,255,0)
 gray = (128,128,128)
+brown = (165, 42, 42)
 
 # Set up square
 square_size = 50
@@ -32,8 +33,10 @@ mice = []
 #brie = gameObject(200,200,yellow,10,10,False,0)
 cheeses = []
 
+poops = []
+
 i = 0
-while i < 5:
+while i < 15:
     mice.append(makeRandomMouse(width,height))
     cheeses.append(makeRandomCheese(width,height))
     i += 1
@@ -41,6 +44,7 @@ while i < 5:
 
 tick = 0
 game_tick = 20
+poop_tick = 8
 # Game loop
 running = True
 while running:
@@ -60,17 +64,36 @@ while running:
     # Draw everything
     window.fill(black)  # Fill the background with black
     #pygame.draw.rect(window, white, (x, y, square_size, square_size))
+
+# Inside your game loop
     for mouse in mice:
         mouse.draw(window)
-        mouse.age +=1
-        if tick%game_tick == 0:
-            moveCloser(mouse,nearestObject(mouse,cheeses),mouse.dna.speed)
+        mouse.age += 1
+        if tick % game_tick == 0 and len(cheeses) > 0:
+            nearestInd = nearestObject(mouse, cheeses)
+            moveCloser(mouse,cheeses[nearestInd], mouse.dna.speed)
+            if calculateDistance(mouse,cheeses[nearestInd]) < 15:
+                mouse.eat(cheeses[nearestInd])
+            if tick % (game_tick*poop_tick) == 0:
+                poops.append(mouse.makePoop(width, height))
+
+    apply_gravity(poops)
+
+    for poop in poops:
+        poops,cheeses = makeClumps(poops,cheeses)
+        poop.draw(window)
 
     for cheese in cheeses:
-        cheese.age += 1
-        cheese.draw(window)
+        if cheese.width <= 0:
+            cheeses.remove(cheese)
+        else:
+            cheese.age += 1
+            cheese.draw(window)
+
+
+
     pygame.display.flip()  # Update the display
-    
+        
     tick += 1
 
     # Control the frame rate
