@@ -6,8 +6,11 @@ from dna import *
 # Initialize Pygame
 pygame.init()
 
+pygame.mixer.init()
+pygame.mixer.music.load('assets/greatescape.mp3')
+pygame.mixer.music.play()
 # Set up display
-width, height = 1000, 1000
+width, height = 1800, 1000
 window = pygame.display.set_mode((width, height))
 
 # Set up colors
